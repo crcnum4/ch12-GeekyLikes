@@ -1,8 +1,6 @@
 package com.geekylikes.app.models;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import java.util.List;
 
 @Entity
@@ -14,6 +12,9 @@ public class Developer {
     private String email;
     private Integer cohort;
     private String[] languages;
+    @OneToMany
+    @JoinColumn(name = "developer_id", referencedColumnName = "id")
+    private List<Geekout> geekouts;
 
     public Developer() {}
 
