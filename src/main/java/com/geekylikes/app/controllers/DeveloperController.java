@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+@CrossOrigin
 @RestController
 @RequestMapping("/api/developers")
 public class DeveloperController {
@@ -40,6 +41,13 @@ public class DeveloperController {
         return new ResponseEntity<>(repository.save(newDeveloper), HttpStatus.CREATED);
     }
 
+    @PutMapping("/language")
+    public Developer addLanguage(@RequestBody Developer updates) {
+        Developer developer = repository.findById(updates.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        developer.languages.addAll(updates.languages);
+        return repository.save(developer);
+    }
 
     @PutMapping("/{id}")
     public @ResponseBody Developer updateDeveloper(@PathVariable Long id, @RequestBody Developer updates) {
@@ -50,7 +58,7 @@ public class DeveloperController {
         if (updates.getName() != null) developer.setName(updates.getName());
         if (updates.getEmail() != null) developer.setEmail(updates.getEmail());
         if (updates.getCohort() != null) developer.setCohort(updates.getCohort());
-        if (updates.getLanguages() != null) developer.setLanguages(updates.getLanguages());
+        if (updates.languages != null) developer.languages = updates.languages;
 
         return repository.save(developer);
     }
@@ -60,5 +68,6 @@ public class DeveloperController {
         repository.deleteById(id);
         return new ResponseEntity<>("Deleted", HttpStatus.OK);
     }
+
 
 }
