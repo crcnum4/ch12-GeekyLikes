@@ -1,8 +1,17 @@
-package com.geekylikes.app.models;
+package com.geekylikes.app.models.geekout;
+
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.geekylikes.app.models.developer.Developer;
 
 import javax.persistence.*;
 
 @Entity
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 public class Geekout {
 
     @Id
@@ -56,4 +65,5 @@ public class Geekout {
     public void setContent(String content) {
         this.content = content;
     }
+
 }

@@ -1,6 +1,8 @@
 package com.geekylikes.app.controllers;
 
-import com.geekylikes.app.models.Developer;
+import com.geekylikes.app.models.avatar.Avatar;
+import com.geekylikes.app.models.developer.Developer;
+import com.geekylikes.app.repositories.AvatarRepository;
 import com.geekylikes.app.repositories.DeveloperRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -9,8 +11,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 @CrossOrigin
@@ -19,6 +19,9 @@ import java.util.List;
 public class DeveloperController {
     @Autowired
     private DeveloperRepository repository;
+
+    @Autowired
+    private AvatarRepository avatarRepository;
 
     @GetMapping
     public @ResponseBody List<Developer> getDevelopers() {
@@ -39,6 +42,24 @@ public class DeveloperController {
     @PostMapping
     public ResponseEntity<Developer> createDeveloper(@RequestBody Developer newDeveloper) {
         return new ResponseEntity<>(repository.save(newDeveloper), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/photo")
+    public Developer addPhoto(@RequestBody Developer dev) {
+        /*
+        {
+            "id": 1,
+            "avatar": {
+                "url": "www.example.com/pic.jpg"
+            }
+        }
+         */
+        Developer developer = repository.findById(dev.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        // check if developer has an avatar and if so, delete or modify existing avatar before creating new.
+        Avatar avatar = avatarRepository.save(dev.getAvatar());
+        developer.setAvatar(avatar);
+        return repository.save(developer);
+
     }
 
     @PutMapping("/language")

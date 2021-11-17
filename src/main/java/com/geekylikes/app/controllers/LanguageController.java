@@ -1,6 +1,6 @@
 package com.geekylikes.app.controllers;
 
-import com.geekylikes.app.models.Language;
+import com.geekylikes.app.models.language.Language;
 import com.geekylikes.app.repositories.LanguageRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

@@ -1,8 +1,19 @@
-package com.geekylikes.app.models;
+package com.geekylikes.app.models.language;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.geekylikes.app.models.developer.Developer;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
+@JsonIdentityInfo(
+        generator = ObjectIdGenerators.PropertyGenerator.class,
+        property = "id"
+)
 @Entity
 public class Language {
     @Id
@@ -11,13 +22,14 @@ public class Language {
     private String name;
     private String tag;
 
+
     @ManyToMany
     @JoinTable(
             name="developer_language",
             joinColumns = @JoinColumn(name = "language_id"),
             inverseJoinColumns = @JoinColumn(name = "developer_id")
     )
-    private Set<Developer> developers;
+    private Set<Developer> developers = new HashSet<>();
 
     public Language() {
     }
@@ -52,4 +64,11 @@ public class Language {
         this.tag = tag;
     }
 
+    public Set<Developer> getDevelopers() {
+        return developers;
+    }
+
+    public void setDevelopers(Set<Developer> developers) {
+        this.developers = developers;
+    }
 }
