@@ -46,16 +46,14 @@ public class DeveloperController {
 
     @PostMapping("/photo")
     public Developer addPhoto(@RequestBody Developer dev) {
-        /*
-        {
-            "id": 1,
-            "avatar": {
-                "url": "www.example.com/pic.jpg"
-            }
-        }
-         */
         Developer developer = repository.findById(dev.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         // check if developer has an avatar and if so, delete or modify existing avatar before creating new.
+        if (developer.getAvatar() != null) {
+            Avatar avatar = developer.getAvatar();
+            avatar.setUrl(dev.getAvatar().getUrl());
+            avatarRepository.save(avatar);
+            return developer;
+        }
         Avatar avatar = avatarRepository.save(dev.getAvatar());
         developer.setAvatar(avatar);
         return repository.save(developer);

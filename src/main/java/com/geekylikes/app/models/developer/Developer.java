@@ -1,9 +1,6 @@
 package com.geekylikes.app.models.developer;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import com.geekylikes.app.models.avatar.Avatar;
 import com.geekylikes.app.models.geekout.Geekout;
 import com.geekylikes.app.models.language.Language;
@@ -13,10 +10,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)
+//@JsonIdentityInfo(
+//        generator = ObjectIdGenerators.PropertyGenerator.class,
+//        property = "id"
+//)
 @Entity
 public class Developer {
     @Id
@@ -27,10 +24,8 @@ public class Developer {
     private Integer cohort;
 //    private String[] languages;
 
-    @OneToMany
-    @JoinColumn(name = "developer_id", referencedColumnName = "id")
-    private List<Geekout> geekouts;
-
+//    @OneToMany(mappedBy = "developer", fetch = FetchType.LAZY)
+//    private List<Geekout> geekouts;
 
     @ManyToMany
     @JoinTable(
@@ -38,6 +33,7 @@ public class Developer {
             joinColumns = @JoinColumn(name = "developer_id"),
             inverseJoinColumns = @JoinColumn(name = "language_id")
     )
+    @JsonIgnoreProperties("developers")
     public Set<Language> languages = new HashSet<>();
 
     @OneToOne
@@ -45,13 +41,10 @@ public class Developer {
 
     public Developer() {}
 
-    public Developer(String name, String email, Integer cohort, List<Geekout> geekouts, Set<Language> languages, Avatar avatar) {
+    public Developer(String name, String email, Integer cohort) {
         this.name = name;
         this.email = email;
         this.cohort = cohort;
-        this.geekouts = geekouts;
-        this.languages = languages;
-        this.avatar = avatar;
     }
 
     public Long getId() {
@@ -94,13 +87,13 @@ public class Developer {
         return languages;
     }
 
-    public List<Geekout> getGeekouts() {
-        return geekouts;
-    }
-
-    public void setGeekouts(List<Geekout> geekouts) {
-        this.geekouts = geekouts;
-    }
+//    public List<Geekout> getGeekouts() {
+//        return geekouts;
+//    }
+//
+//    public void setGeekouts(List<Geekout> geekouts) {
+//        this.geekouts = geekouts;
+//    }
 
     public Avatar getAvatar() {
         return avatar;

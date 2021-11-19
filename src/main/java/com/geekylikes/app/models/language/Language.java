@@ -1,19 +1,12 @@
 package com.geekylikes.app.models.language;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
 import com.geekylikes.app.models.developer.Developer;
 
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
 
-@JsonIdentityInfo(
-        generator = ObjectIdGenerators.PropertyGenerator.class,
-        property = "id"
-)
 @Entity
 public class Language {
     @Id
@@ -29,6 +22,7 @@ public class Language {
             joinColumns = @JoinColumn(name = "language_id"),
             inverseJoinColumns = @JoinColumn(name = "developer_id")
     )
+    @JsonIgnoreProperties("languages")
     private Set<Developer> developers = new HashSet<>();
 
     public Language() {
