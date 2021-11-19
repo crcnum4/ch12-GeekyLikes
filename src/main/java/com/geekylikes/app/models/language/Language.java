@@ -16,22 +16,21 @@ public class Language {
     private String tag;
 
 
-    @ManyToMany
-    @JoinTable(
-            name="developer_language",
-            joinColumns = @JoinColumn(name = "language_id"),
-            inverseJoinColumns = @JoinColumn(name = "developer_id")
-    )
-    @JsonIgnoreProperties("languages")
-    private Set<Developer> developers = new HashSet<>();
+//    @ManyToMany
+//    @JoinTable(
+//            name="developer_language",
+//            joinColumns = @JoinColumn(name = "language_id"),
+//            inverseJoinColumns = @JoinColumn(name = "developer_id")
+//    )
+//    @JsonIgnoreProperties("languages")
+//    private Set<Developer> developers = new HashSet<>();
 
     public Language() {
     }
 
-    public Language(String name, String tag, Set<Developer> developers) {
+    public Language(String name, String tag) {
         this.name = name;
         this.tag = tag;
-        this.developers = developers;
     }
 
     public Long getId() {
@@ -56,13 +55,5 @@ public class Language {
 
     public void setTag(String tag) {
         this.tag = tag;
-    }
-
-    public Set<Developer> getDevelopers() {
-        return developers;
-    }
-
-    public void setDevelopers(Set<Developer> developers) {
-        this.developers = developers;
     }
 }

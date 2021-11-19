@@ -28,6 +28,11 @@ public class DeveloperController {
         return repository.findAll();
     }
 
+    @GetMapping("/lang/{langId}")
+    public List<Developer> getDevsByLanguage(@PathVariable Long langId) {
+        return repository.findAllByLanguages_id(langId);
+    }
+
     @GetMapping("/cohort/{cohort}")
     public ResponseEntity<List<Developer>> getDevelopersByCohort(@PathVariable Integer cohort) {
         return new ResponseEntity<>(repository.findAllByCohort(cohort, Sort.by("name")), HttpStatus.OK);
