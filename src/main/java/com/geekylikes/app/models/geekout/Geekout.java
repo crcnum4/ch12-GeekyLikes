@@ -1,12 +1,11 @@
 package com.geekylikes.app.models.geekout;
 
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.*;
+import com.geekylikes.app.models.approve.Approve;
 import com.geekylikes.app.models.developer.Developer;
 
 import javax.persistence.*;
+import java.util.Set;
 
 @Entity
 public class Geekout {
@@ -22,6 +21,10 @@ public class Geekout {
 
     private String title;
     private String content;
+
+    @OneToMany(mappedBy = "geekout", fetch = FetchType.LAZY)
+    @JsonIncludeProperties("developer")
+    private Set<Approve> approvals;
 
     public Geekout() {
     }
@@ -64,4 +67,11 @@ public class Geekout {
         this.content = content;
     }
 
+    public Set<Approve> getApprovals() {
+        return approvals;
+    }
+
+    public void setApprovals(Set<Approve> approvals) {
+        this.approvals = approvals;
+    }
 }
