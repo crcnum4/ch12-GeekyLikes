@@ -1,7 +1,6 @@
 package com.geekylikes.app.models.developer;
 
 import com.fasterxml.jackson.annotation.*;
-import com.geekylikes.app.models.approve.Approve;
 import com.geekylikes.app.models.avatar.Avatar;
 import com.geekylikes.app.models.geekout.Geekout;
 import com.geekylikes.app.models.language.Language;
@@ -17,7 +16,6 @@ import java.util.Set;
 //)
 @Entity
 public class Developer {
-
     @Id
     @GeneratedValue
     private Long id;
@@ -37,10 +35,6 @@ public class Developer {
     )
     @JsonIgnoreProperties("developers")
     public Set<Language> languages = new HashSet<>();
-
-    @OneToMany(mappedBy = "developer", fetch = FetchType.LAZY)
-    @JsonIgnore
-    private Set<Approve> approvals;
 
     @OneToOne
     private Avatar avatar;
