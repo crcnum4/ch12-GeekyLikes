@@ -1,3 +1,5 @@
+// Developer findByUser_id()
+
 package com.geekylikes.app.models.auth;
 
 import javax.persistence.*;

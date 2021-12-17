@@ -54,8 +54,8 @@ public class TestController {
         return ResponseEntity.ok(response.getArticles());
     }
 
-    @GetMapping("/newsCategory/{category}")
-    public ResponseEntity<?> getArticlesByCategory() {
-
-    }
+//    @GetMapping("/newsCategory/{category}")
+//    public ResponseEntity<?> getArticlesByCategory() {
+//
+//    }
 }

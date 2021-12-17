@@ -1,15 +1,20 @@
 package com.geekylikes.app.controllers;
 
+import com.geekylikes.app.models.auth.User;
 import com.geekylikes.app.models.avatar.Avatar;
 import com.geekylikes.app.models.developer.Developer;
 import com.geekylikes.app.models.geekout.Geekout;
 import com.geekylikes.app.repositories.AvatarRepository;
 import com.geekylikes.app.repositories.DeveloperRepository;
 import com.geekylikes.app.repositories.GeekoutRepository;
+import com.geekylikes.app.repositories.UserRepository;
+import com.geekylikes.app.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -27,6 +32,9 @@ public class DeveloperController {
 
     @Autowired
     GeekoutRepository geekoutRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @GetMapping
     public @ResponseBody List<Developer> getDevelopers() {
@@ -56,6 +64,13 @@ public class DeveloperController {
 
     @PostMapping
     public ResponseEntity<Developer> createDeveloper(@RequestBody Developer newDeveloper) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+
+        User currentUser = userRepository.findById(userDetails.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
+
+        newDeveloper.setUser(currentUser);
+
         return new ResponseEntity<>(repository.save(newDeveloper), HttpStatus.CREATED);
     }
 
