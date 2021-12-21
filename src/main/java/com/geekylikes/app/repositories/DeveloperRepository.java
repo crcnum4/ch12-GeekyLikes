@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface DeveloperRepository extends JpaRepository<Developer, Long> {
 
@@ -15,7 +16,9 @@ public interface DeveloperRepository extends JpaRepository<Developer, Long> {
     //get a list of developers that liked geekout
     List<Developer> findAllByApprovals_geekout_id(Long id);
 
-    Developer findByUser_id(Long id);
+    Optional<Developer> findByUser_id(Long id);
+
+    Void deleteByUser_id(Long id);
 
 //    @Query("SELECT * FROM developer WHERE cohort = ?1 AND ?2 in languages")
 //    Developer findByCohortAndLanguage(Integer cohort, String language);

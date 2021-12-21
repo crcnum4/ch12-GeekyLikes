@@ -1,10 +1,13 @@
 package com.geekylikes.app.controllers;
 
 import com.geekylikes.app.models.approve.Approve;
+import com.geekylikes.app.models.auth.User;
 import com.geekylikes.app.models.developer.Developer;
 import com.geekylikes.app.models.geekout.Geekout;
 import com.geekylikes.app.repositories.ApproveRepository;
+import com.geekylikes.app.repositories.DeveloperRepository;
 import com.geekylikes.app.repositories.GeekoutRepository;
+import com.geekylikes.app.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +27,12 @@ public class GeekoutController {
     @Autowired
     private ApproveRepository approveRepository;
 
+    @Autowired
+    private DeveloperRepository developerRepository;
+
+    @Autowired
+    private UserService userService;
+
     @GetMapping
     public ResponseEntity<Iterable<Geekout>> getAll() {
         return new ResponseEntity<>(repository.findAll(), HttpStatus.OK);
@@ -36,7 +45,14 @@ public class GeekoutController {
 
     @PostMapping
     public ResponseEntity<Geekout> createOne(@RequestBody Geekout geekout) {
-        System.out.println(geekout.getDeveloper().getId());
+        User currentUser = userService.getCurrentUser();
+
+        if (currentUser == null) {
+            return null;
+        }
+//        System.out.println(geekout.getDeveloper().getId());
+        Developer currentDeveloper = developerRepository.findByUser_id(currentUser.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        geekout.setDeveloper(currentDeveloper);
 
         return new ResponseEntity<>(repository.save(geekout), HttpStatus.CREATED);
     }
