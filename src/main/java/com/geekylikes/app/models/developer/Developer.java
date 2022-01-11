@@ -51,6 +51,10 @@ public class Developer {
     @JsonIgnore
     private User user;
 
+    // RelationshipList
+    // @manytomany mappedby the relationship
+    // private Developer friends
+
     public Developer() {}
 
     public Developer(String name, String email, Integer cohort, User user) {
