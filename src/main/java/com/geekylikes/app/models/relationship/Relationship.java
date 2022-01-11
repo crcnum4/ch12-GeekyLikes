@@ -12,12 +12,12 @@ public class Relationship {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "originator_id", referencedColumnName = "id", table = "developer")
+    @JoinColumn(name = "originator_id", referencedColumnName = "id")
     @JsonIncludeProperties("id")
     private Developer originator;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "recipient_id", referencedColumnName = "id", table = "developer")
+    @JoinColumn(name = "recipient_id", referencedColumnName = "id")
     @JsonIncludeProperties("id")
     private Developer recipient;
 
