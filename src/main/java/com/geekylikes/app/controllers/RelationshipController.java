@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.management.relation.Relation;
+import javax.swing.text.html.Option;
+import java.util.Optional;
 
 @CrossOrigin
 @RestController
@@ -46,6 +48,29 @@ public class RelationshipController {
                 new ResponseStatusException(HttpStatus.NOT_FOUND)
         );
 
+        Optional<Relationship> rel = repository.findByOriginator_idAndRecipient_id(originator.getId(), recipient.getId());
+
+        if (rel.isPresent()) {
+            return new ResponseEntity<>(new MessageResponse("Nice try, be patient"), HttpStatus.OK);
+        }
+
+        Optional<Relationship> invRel = repository.findByOriginator_idAndRecipient_id(recipient.getId(), originator.getId());
+
+        if (invRel.isPresent()) {
+            switch (invRel.get().getType()) {
+                case PENDING:
+                    invRel.get().setType(ERelationship.ACCEPTED);
+                    repository.save(invRel.get());
+                    return new ResponseEntity<>(new MessageResponse("Success"), HttpStatus.CREATED);
+                case ACCEPTED:
+                    return new ResponseEntity<>(new MessageResponse("You are already friends stop taxing our system"), HttpStatus.OK);
+                case BLOCKED:
+                    return new ResponseEntity<>(new MessageResponse("GG"), HttpStatus.OK);
+                default:
+                    return new ResponseEntity<>(new MessageResponse("SERVER ERROR _ DEFAULT RELATIONSHIP"), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        }
+
         try {
             repository.save(new Relationship(originator, recipient, ERelationship.PENDING));
         } catch (Exception e) {
@@ -57,4 +82,43 @@ public class RelationshipController {
         return new ResponseEntity<>(new MessageResponse("Success"), HttpStatus.CREATED);
 
     }
+
+    @PostMapping("/block/{rId}")
+    public ResponseEntity<MessageResponse> blockRecipient(@PathVariable Long rId) {
+        User currentUser = userService.getCurrentUser();
+
+        if (currentUser == null) {
+            return new ResponseEntity<>(new MessageResponse("Invalid User"), HttpStatus.BAD_REQUEST);
+        }
+
+        Developer originator = developerRepository.findByUser_id(currentUser.getId()).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+
+        Developer recipient = developerRepository.findById(rId).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+
+        // create the edge case solutions
+
+        // T N already exists
+        // if pending change to Blocked
+        // if approved change to blocked
+        // if blocked do nothing
+
+        // N t exists
+        // if pending change to blocked
+        // if approved change to blocked
+        // if blocked do nothing
+
+
+        try {
+            repository.save(new Relationship(originator, recipient, ERelationship.BLOCKED));
+        }catch (Exception e) {
+            System.out.println("error" + e.getLocalizedMessage());
+            return new ResponseEntity<>(new MessageResponse("Server error"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
+
