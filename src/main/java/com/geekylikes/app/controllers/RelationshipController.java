@@ -17,6 +17,7 @@ import org.springframework.web.server.ResponseStatusException;
 import javax.management.relation.Relation;
 import javax.swing.text.html.Option;
 import java.util.Optional;
+import java.util.Set;
 
 @CrossOrigin
 @RestController
@@ -101,24 +102,107 @@ public class RelationshipController {
 
         // create the edge case solutions
 
-        // T N already exists
-        // if pending change to Blocked
-        // if approved change to blocked
-        // if blocked do nothing
+        Optional<Relationship> rel = repository.findByOriginator_idAndRecipient_id(originator.getId(), recipient.getId());
 
-        // N t exists
-        // if pending change to blocked
-        // if approved change to blocked
-        // if blocked do nothing
+        if(rel.isPresent()) {
+            if (rel.get().getType() != ERelationship.BLOCKED) {
+                rel.get().setType(ERelationship.BLOCKED);
+                repository.save(rel.get());
+            }
+            return new ResponseEntity<>(new MessageResponse("Blocked"), HttpStatus.OK);
+        }
 
+        Optional<Relationship> invRel = repository.findByOriginator_idAndRecipient_id(recipient.getId(), originator.getId());
+        if(invRel.isPresent()) {
+            if (invRel.get().getType() != ERelationship.BLOCKED) {
+                invRel.get().setType(ERelationship.BLOCKED);
+                repository.save(invRel.get());
+            }
+            return new ResponseEntity<>(new MessageResponse("Blocked"), HttpStatus.OK);
+        }
 
         try {
             repository.save(new Relationship(originator, recipient, ERelationship.BLOCKED));
+            return new ResponseEntity<>(new MessageResponse("Blocked"), HttpStatus.OK);
         }catch (Exception e) {
             System.out.println("error" + e.getLocalizedMessage());
             return new ResponseEntity<>(new MessageResponse("Server error"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @PostMapping("/approve/{id}")
+    private ResponseEntity<MessageResponse> approveRelationship(@PathVariable Long id) {
+        User currentUser = userService.getCurrentUser();
+
+        if (currentUser == null) {
+            return new ResponseEntity<>(new MessageResponse("Invalid User"), HttpStatus.BAD_REQUEST);
+        }
+
+        Developer recipient = developerRepository.findByUser_id(currentUser.getId()).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+
+        Relationship rel = repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (rel.getRecipient().getId() != recipient.getId()) {
+            return new ResponseEntity<>(new MessageResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
+        }
+
+        if (rel.getType() == ERelationship.PENDING) {
+            rel.setType(ERelationship.ACCEPTED);
+            repository.save(rel);
+        }
+
+        return new ResponseEntity<>(new MessageResponse("Approved"), HttpStatus.OK);
+    }
+
+    @DeleteMapping("/remove/{id}")
+    private ResponseEntity<MessageResponse> removeRelationship(@PathVariable Long id) {
+        User currentUser = userService.getCurrentUser();
+
+        if (currentUser == null) {
+            return new ResponseEntity<>(new MessageResponse("Invalid User"), HttpStatus.BAD_REQUEST);
+        }
+
+        Developer developer = developerRepository.findByUser_id(currentUser.getId()).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+
+        Relationship rel = repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+
+        if (rel.getOriginator().getId() != developer.getId() && rel.getRecipient().getId() != developer.getId()) {
+            new ResponseEntity<>(new MessageResponse("Unauthorized"), HttpStatus.UNAUTHORIZED);
+        }
+
+        // pending -> delete it
+        // approved -> delete it
+        // blocked -> nothing
+
+        if (rel.getType() != ERelationship.BLOCKED) {
+            repository.delete(rel);
+        }
+        return new ResponseEntity<>(new MessageResponse("success"), HttpStatus.OK);
+    }
+
+    @GetMapping("/friends")
+    public ResponseEntity<?> getFriends() {
+        User currentUser = userService.getCurrentUser();
+
+        if (currentUser == null) {
+            return new ResponseEntity<>(new MessageResponse("Invalid User"), HttpStatus.BAD_REQUEST);
+        }
+
+        Developer developer = developerRepository.findByUser_id(currentUser.getId()).orElseThrow(() ->
+                new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+
+        Set<Relationship> rels = repository.findAllByOriginator_idAndType(developer.getId(), ERelationship.ACCEPTED);
+        Set<Relationship> invRels = repository.findAllByRecipient_idAndType(developer.getId(), ERelationship.ACCEPTED);
+
+        rels.addAll(invRels);
+        return new ResponseEntity<>(rels, HttpStatus.OK);
+    }
+
 }
+
 
