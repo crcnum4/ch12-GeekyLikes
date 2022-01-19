@@ -5,10 +5,10 @@ import com.geekylikes.app.models.avatar.Avatar;
 import com.geekylikes.app.models.developer.Developer;
 import com.geekylikes.app.models.geekout.Geekout;
 import com.geekylikes.app.models.language.Language;
-import com.geekylikes.app.repositories.AvatarRepository;
-import com.geekylikes.app.repositories.DeveloperRepository;
-import com.geekylikes.app.repositories.GeekoutRepository;
-import com.geekylikes.app.repositories.UserRepository;
+import com.geekylikes.app.models.relationship.ERelationship;
+import com.geekylikes.app.payloads.response.FriendDeveloper;
+import com.geekylikes.app.payloads.response.PublicDeveloper;
+import com.geekylikes.app.repositories.*;
 import com.geekylikes.app.security.services.UserDetailsImpl;
 import com.geekylikes.app.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,11 +36,47 @@ public class DeveloperController {
     GeekoutRepository geekoutRepository;
 
     @Autowired
+    RelationshipRepository relationshipRepository;
+
+    @Autowired
     UserService userService;
 
     @GetMapping
     public @ResponseBody List<Developer> getDevelopers() {
         return repository.findAll();
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getDeveloperById(@PathVariable Long id) {
+        // get user
+        User currentUser = userService.getCurrentUser();
+
+        if (currentUser == null) {
+            return null;
+        }
+        Developer currentDeveloper = repository.findByUser_id(currentUser.getId()).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+
+        Developer developer = repository.findById(id).orElseThrow(
+                () -> new ResponseStatusException(HttpStatus.NOT_FOUND)
+        );
+
+        // check friendship
+        if (
+                relationshipRepository.existsByOriginator_idAndRecipient_idAndType(
+                        currentDeveloper.getId(), developer.getId(), ERelationship.ACCEPTED
+                ) || relationshipRepository.existsByOriginator_idAndRecipient_idAndType(
+                        developer.getId(), currentDeveloper.getId(), ERelationship.ACCEPTED
+                )
+        ) {
+            return new ResponseEntity<>(FriendDeveloper.build(developer), HttpStatus.OK);
+        }
+
+        // TODO: if blocked send 404
+
+        return new ResponseEntity<>(PublicDeveloper.build(developer), HttpStatus.OK);
+
     }
 
     @GetMapping("/lang/{langId}")
@@ -68,10 +104,10 @@ public class DeveloperController {
         return repository.findByUser_id(currentUser.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    @GetMapping("/{id}")
-    public @ResponseBody Developer getOneDeveloper(@PathVariable Long id) {
-        return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    }
+//    @GetMapping("/{id}")
+//    public @ResponseBody Developer getOneDeveloper(@PathVariable Long id) {
+//        return repository.findById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+//    }
 
 
     @PostMapping
