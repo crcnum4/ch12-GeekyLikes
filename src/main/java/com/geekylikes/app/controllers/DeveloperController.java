@@ -6,6 +6,7 @@ import com.geekylikes.app.models.developer.Developer;
 import com.geekylikes.app.models.geekout.Geekout;
 import com.geekylikes.app.models.language.Language;
 import com.geekylikes.app.models.relationship.ERelationship;
+import com.geekylikes.app.models.relationship.Relationship;
 import com.geekylikes.app.payloads.response.FriendDeveloper;
 import com.geekylikes.app.payloads.response.PublicDeveloper;
 import com.geekylikes.app.repositories.*;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Set;
 
 @CrossOrigin
 @RestController
@@ -70,6 +72,9 @@ public class DeveloperController {
                         developer.getId(), currentDeveloper.getId(), ERelationship.ACCEPTED
                 )
         ) {
+
+//            Set<Developer> developerFriends = repository.findAllByRelationships_type(ERelationship.ACCEPTED);
+//            developerFriends.addAll(repository.findAllByInverseRelationships_type(ERelationship.ACCEPTED));
             return new ResponseEntity<>(FriendDeveloper.build(developer), HttpStatus.OK);
         }
 

@@ -13,12 +13,12 @@ public class Relationship {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "originator_id", referencedColumnName = "id")
-    @JsonIncludeProperties({"id", "name"})
+    @JsonIncludeProperties({"id", "name", "type"})
     private Developer originator;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "recipient_id", referencedColumnName = "id")
-    @JsonIncludeProperties({"id", "name"})
+    @JsonIncludeProperties({"id", "name", "type"})
     private Developer recipient;
 
     @Enumerated(EnumType.STRING)

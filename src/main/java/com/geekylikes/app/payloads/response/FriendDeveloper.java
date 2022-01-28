@@ -18,7 +18,7 @@ public class FriendDeveloper extends PublicDeveloper{
 
     static public FriendDeveloper build(Developer developer) {
         Set<Developer> friends = developer.getRelationships();
-        friends.addAll(developer.getInverseRelationShips());
+        friends.addAll(developer.getInverseRelationships());
         return new FriendDeveloper(
                 developer.getId(),
                 developer.getName(),
