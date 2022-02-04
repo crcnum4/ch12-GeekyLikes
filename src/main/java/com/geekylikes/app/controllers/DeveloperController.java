@@ -9,6 +9,7 @@ import com.geekylikes.app.models.relationship.ERelationship;
 import com.geekylikes.app.models.relationship.Relationship;
 import com.geekylikes.app.payloads.response.FriendDeveloper;
 import com.geekylikes.app.payloads.response.PublicDeveloper;
+import com.geekylikes.app.payloads.response.SelfDeveloper;
 import com.geekylikes.app.repositories.*;
 import com.geekylikes.app.security.services.UserDetailsImpl;
 import com.geekylikes.app.services.UserService;
@@ -100,13 +101,14 @@ public class DeveloperController {
     }
 
     @GetMapping("/self")
-    public @ResponseBody Developer getSelf() {
+    public @ResponseBody SelfDeveloper getSelf() {
         User currentUser = userService.getCurrentUser();
 
         if (currentUser == null) {
             return null;
         }
-        return repository.findByUser_id(currentUser.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Developer currentDev =  repository.findByUser_id(currentUser.getId()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return SelfDeveloper.build(currentDev);
     }
 
 //    @GetMapping("/{id}")
@@ -116,7 +118,7 @@ public class DeveloperController {
 
 
     @PostMapping
-    public ResponseEntity<Developer> createDeveloper(@RequestBody Developer newDeveloper) {
+    public ResponseEntity<SelfDeveloper> createDeveloper(@RequestBody Developer newDeveloper) {
 
         User currentUser = userService.getCurrentUser();
 
@@ -127,7 +129,9 @@ public class DeveloperController {
         //TODO add check for existing developer profile.
         newDeveloper.setUser(currentUser);
 
-        return new ResponseEntity<>(repository.save(newDeveloper), HttpStatus.CREATED);
+        Developer dev = repository.save(newDeveloper);
+
+        return new ResponseEntity<>(SelfDeveloper.build(dev), HttpStatus.CREATED);
     }
 
     @PostMapping("/photo")

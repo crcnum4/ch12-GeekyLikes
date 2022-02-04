@@ -28,16 +28,17 @@ public class SelfDeveloper {
     }
 
     static public SelfDeveloper build(Developer developer) {
-        Set<Developer> empty = new HashSet<>();
+        Set<Developer> friends = developer.getRelationships();
+        friends.addAll(developer.getInverseRelationships());
         return new SelfDeveloper(
                 developer.getId(),
                 developer.getName(),
                 developer.getEmail(),
                 developer.getCohort(),
                 developer.getLanguages(),
-                empty,
-                empty,
-                empty
+                friends,
+                developer.getPendingRelationships(),
+                developer.getIncomingRelationships()
         );
     }
 
